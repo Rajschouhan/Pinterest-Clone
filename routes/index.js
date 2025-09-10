@@ -5,7 +5,7 @@ var router = express.Router();
 const userModel = require("./users");
 const postModel = require('./posts');
 const passport = require('passport'); //pswd require
-
+const upload = require("./multer");// 29
 
 //setup pswd for authentication
 const  localStrategy = require("passport-local");
@@ -23,6 +23,23 @@ router.get("/login",function(req,res,next){
 
 router.get("/feed", function(req,res,next){
   res.render('feed');
+});
+
+//29 -> route for uploading image using multer , uplod.singel is = middleware jo img ko handle krega.
+router.post("/upload", isLoggedIn, upload.single('file'), async function(req,res,next){
+  if(!req.file){
+    res.status(404).send("no files were Given");
+  }           //Linking to Database now ->31
+      const user = await userModel.findOne({ username : req.session.passport.user}); // isse ek user milega jo login hai.
+      const post = await postModel.create({
+           img : req.file.filename ,                                                     // jb img uplod hui hai uska filename hoga.//
+           imgText : req.body.filecaption ,                                              // caption jo user ne dala hoga wo hoga.
+           user: user._id
+   });
+
+          user.posts.push(post._id);                                                    // user ke posts me post ki id push kr di.
+          await user.save();
+        res.redirect("/profile");
 });
 
 //4 -> route for creating user
@@ -87,9 +104,16 @@ router.get("/logout", function(req,res){
       res.redirect("/");
      });
 });
+//25
+router.get('/profile', isLoggedIn, async function(req,res,next){
+    const  user = await userModel.findOne({
+      username : req.session.passport.user
+  })
+  .populate("posts"); //populate kr k posts ka sara data mil jata hai.
+                     // populate = populate se hum kisi dusre model ka data le skte hai.
+        console.log(user);
+        res.render("profile", { user });
 
-router.get('/profile', isLoggedIn, function(req,res,next){
-res.render("profile", { user: req.user, currentUser: req.user });
 }); 
  
  function isLoggedIn(req,res,next){

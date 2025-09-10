@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const postSchema = new mongoose.Schema({
-    postText:{
+    imgText:{
         type: String,
         required: true,
     },
@@ -10,6 +10,9 @@ const postSchema = new mongoose.Schema({
     user:{
         type : mongoose.Schema.Types.ObjectId,
         ref: 'User', // Reference to the User model
+    },
+    img:{
+        type: String,
     },
     createdAt:{
         type : Date,
