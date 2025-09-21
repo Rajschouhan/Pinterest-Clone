@@ -49,3 +49,7 @@ INKO REQUIRE KARNEGE YE 2 ROUTES H , INHE index.js ME LAYNEGE.
 
 33 = Now in /profile route [same index.js], hum     hamari post Profile pr show Karenge. Populate krna pdega , 
 Hum USER profile me POST ka data layenge to .populate use karenge, or fir ejs use kr k profile ui me ek function banynge jisme foreach lga kr k sari user created posts dikha denge ok,
+
+34 = index.ejs me WE will create PARTIALS folder in that 2 files header.ejs & footer.ejs - inhe sabhi jagah import kr k use kr lenge html likhne k badle\
+35 = humne 3 vidio se .=, dono / -login pge & /register - register pg n=bna liye h humne pspert lga diya h 
+

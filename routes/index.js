@@ -7,23 +7,61 @@ const postModel = require('./posts');
 const passport = require('passport'); //pswd require
 const upload = require("./multer");// 29
 
-//setup pswd for authentication
+//setup pswd for authentication MEthodsm- TPYES-LocalStrategy , Google, Fb , JWt, Github, login etc.
+//Method-localstategy - isme hum bas username or pswd se authenticate krte hai.
+//pss.use() -> passport ko bolte h ki Aunthtication method register krlo
+//
 const  localStrategy = require("passport-local");
 passport.use(new localStrategy(userModel.authenticate()));  
 
-/* GET home page. */
+
+
+
+
+
+
+/* GET home page. */  //PART-3-login
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
+
+//PART-3 register pge to show page .get
+router.get("/register", function(req,res,next){
+  res.render("register",{ title: "Register Page" });
+});
+
+
+//ye uncmmt krna h  : jb Submit hoga then .post , ynha ayga  isse user register hota
+router.post("/register", function(req,res){
+  const { username , email , fullname } = req.body ;
+  const userData = new userModel({ username , email , fullname });
+  
+  userModel.register(userData, req.body.password).
+  then(function(){
+    passport.authenticate("local")(req,res, function(){  //agar user authenticate locally hogya hai then call back run kro jo ANDAR likha hai.
+      res.redirect("/profile");
+    })
+  })
+});
  
+
+
+
+
 router.get("/login",function(req,res,next){
 
   res.render('login' , {error: req.flash('error')});
 });
 
+
+
+
+
 router.get("/feed", function(req,res,next){
   res.render('feed');
 });
+
+
 
 //29 -> route for uploading image using multer , uplod.singel is = middleware jo img ko handle krega.
 router.post("/upload", isLoggedIn, upload.single('file'), async function(req,res,next){
@@ -41,6 +79,10 @@ router.post("/upload", isLoggedIn, upload.single('file'), async function(req,res
           await user.save();
         res.redirect("/profile");
 });
+
+
+
+
 
 //4 -> route for creating user
 
@@ -78,25 +120,17 @@ router.post("/upload", isLoggedIn, upload.single('file'), async function(req,res
 //THIS COMMENTED ROUTES WHERE JUST FOR PRACTISE.
 // NOW DEVLOPMENT CODE OF "PINTEREST" .
 
-router.post("/register", function(req,res){
-  const { username , email , fullname} = req.body ;
-  const userData = new userModel({ username , email , fullname });
-  
-  userModel.register(userData, req.body.password).
-  then(function(){
-    passport.authenticate("local")(req,res, function(){  //agar user authenticate locally hogya hai then call back run kro jo ANDAR likha hai.
-      res.redirect("/profile");
-    })
-  })
-});
+
 
 router.post("/login",passport.authenticate("local",{
   successRedirect: "/profile",
-  failureRedirect: "/login" ,
+  failureRedirect: "/" ,
   failureFlash: true,
-}), function(req,res){
+}), function(req,res,next){
 
 } );
+
+
 
 router.get("/logout", function(req,res){
      req.logout(function(err){
@@ -104,6 +138,9 @@ router.get("/logout", function(req,res){
       res.redirect("/");
      });
 });
+
+
+
 //25
 router.get('/profile', isLoggedIn, async function(req,res,next){
     const  user = await userModel.findOne({
@@ -116,6 +153,10 @@ router.get('/profile', isLoggedIn, async function(req,res,next){
 
 }); 
  
+
+
+
+
  function isLoggedIn(req,res,next){
   if(req.isAuthenticated() ) return next();
   res.redirect("/");
