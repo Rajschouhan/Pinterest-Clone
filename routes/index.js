@@ -149,7 +149,8 @@ router.get('/profile', isLoggedIn, async function(req,res,next){
   .populate("posts"); //populate kr k posts ka sara data mil jata hai.
                      // populate = populate se hum kisi dusre model ka data le skte hai.
         console.log(user);
-        res.render("profile", { user });
+        res.render("profile", { user, 
+    title: 'User Profile' });
 
 }); 
  
