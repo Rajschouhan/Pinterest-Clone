@@ -1,0 +1,55 @@
+<% include ./partials/header.ejs %>
+
+<div class="w-full min-h-screen bg-[#f5f5f5] px-10 py-8">
+  <div class="cards rounded-lg columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-6">
+    
+    <% user.posts.forEach(function(elem) { %>
+      <div class="mb-8 break-inside-avoid">   <!-- added wrapper to keep card + buttons together -->
+
+        <a href="/show/posts/<%= elem._id %>" class="block shadow-md rounded-lg overflow-hidden">
+          <div class="bg-white hover:shadow-xl transition-shadow duration-200">
+            <img
+              src="/images/uploads/<%= elem.img %>"
+              class="w-full aspect-[4/5] object-cover"   <!-- better aspect ratio control -->
+             
+            
+            <h5 class="text-sm text-black font-medium opacity-70 px-3 py-2">
+              <%= elem.title %>
+            </h5>
+          </div>
+        </a>
+
+        <!-- Like + Save buttons – now below image, side by side -->
+        <div class="mt-2 px-1 flex items-center gap-6 text-sm">
+          
+          <form action="/post/<%= elem._id %>/likes" method="POST"> 
+            <button 
+              type="submit"
+              class="flex items-center gap-1.5 hover:text-red-600 transition-colors"
+            >
+              <span class="text-lg">❤️</span>
+              <span class="font-medium">
+                <%= elem.likes ? elem.likes.length : 0 %>
+              </span>
+            </button>
+          </form>
+
+          <form action="/post/<%= elem._id %>/save" method="POST">  
+            <button 
+              type="submit"
+              class="flex items-center gap-1.5 hover:text-blue-600 transition-colors"
+            >
+              <span class="text-lg">🔖</span>
+              <span class="font-medium">Save</span>
+            </button>
+          </form>
+
+        </div>
+
+      </div>
+    <% }); %>
+
+  </div>
+</div>
+
+<% include ./partials/footer.ejs %>

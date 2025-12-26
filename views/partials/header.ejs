@@ -3,6 +3,23 @@
   <head>
     <title><%= title %></title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link
+    href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css"
+    rel="stylesheet"
+/>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
     <link rel="stylesheet" href="/stylesheets/style.css">
   </head>
   <body>
+    
+<% if (typeof nav !== "undefined" && nav) { %>
+  <div class="bg-zinc-800 w-full px-10 py-3 flex justify-between text-white">
+    <h3>Pinterest</h3>
+    <div class="flex gap-4 items-center">
+      <a href="/profile">Profile</a>
+      <a href="/feed">Feed</a>
+      <a class="bg-red-700 px-3 rounded-lg text-white py-2" href="/logout">Logout</a>
+    </div>
+  </div>
+<% } %>

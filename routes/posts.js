@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const postSchema = new mongoose.Schema({
-    imgText:{
+    title:{
         type: String,
         required: true,
     },
@@ -14,14 +14,15 @@ const postSchema = new mongoose.Schema({
     img:{
         type: String,
     },
-    createdAt:{
-        type : Date,
-        default : Date.now,
-    },
-    likes:{
-        type: Array,
-        default:[],
-    },
+    
+    description: String ,
+   likes: [{
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'user',
+  default: []
+}]
+
+    
 });
 
-module.exports = mongoose.model('Post', postSchema);
+module.exports = mongoose.model('post', postSchema);

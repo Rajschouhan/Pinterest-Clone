@@ -1,8 +1,8 @@
 1 = sabse pahle hum 2 model banayenge , (schema) .......   IN   /ROUTES FOLDER WE HAVE THE .js  FILES THAT IS 2 USER  MODEL AND 1 IS THE Routes Pages FILE. (index.js)
 USER (user.js) & POST (post.js) .  ..............    IN /VIEWS FOLDER WE HAVE THE ui PAGES FRONTEND CODE OF EACH PAGE IN EACH FILE. 
 INKO REQUIRE KARNEGE YE 2 ROUTES H , INHE index.js ME LAYNEGE.
-4 =  createUser Route banaynege         in index.js
-5 =  createPost Route banayenge         in index.js
+4 =  createUser register Route banaynege         in index.js
+5 =  createPost post Route banayenge         in index.js
 6 =  both user & post ko ek dusre ki ids denge.
 7 = dropped db , now creating user ,passing user-id to post.
 8 = now createpost me userfindone karnge uss id k basis pr or uss user k schema me post naam ka array banaya h humne usme wo id ko push kr denge.

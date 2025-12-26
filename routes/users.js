@@ -17,13 +17,9 @@ const userSchema = new mongoose.Schema(
     posts: [ 
       {
         type : mongoose.Schema.Types.ObjectId,
-        ref : 'Post' // Reference to the Post model
+        ref : 'post' // Reference to the Post model
       }
     ],
-    dp: {
-      type: String, // URL of the display picture
-      default: ''
-    },
     email: {
       type: String,
       required: true,
@@ -42,7 +38,12 @@ const userSchema = new mongoose.Schema(
     boards:{
       type : Array,
       default:[]
-    }
+    },
+    savedPosts:[{
+      type: mongoose.Schema.Types.ObjectId,
+      ref : 'post',
+      default : []
+    }]
   }
 );
 

@@ -12,73 +12,47 @@ const upload = require("./multer");// 29
 //pss.use() -> passport ko bolte h ki Aunthtication method register krlo
 //
 const  localStrategy = require("passport-local");
+// const { isValidElement } = require('react');
 passport.use(new localStrategy(userModel.authenticate()));  
-
-
-
-
-
 
 
 /* GET home page. */  //PART-3-login
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  res.render('index', { title: 'Express' , nav: false});
 });
 
-//PART-3 register pge to show page .get
+//PART-3 register pge to show page [isse bas page show horha hai].get //signup
 router.get("/register", function(req,res,next){
-  res.render("register",{ title: "Register Page" });
-});
+  res.render("register",{ title: "Register Page" , nav: false });
+}); 
 
 
 //ye uncmmt krna h  : jb Submit hoga then .post , ynha ayga  isse user register hota
 router.post("/register", function(req,res){
-  const { username , email , fullname } = req.body ;
+  const { username , email , fullname } = req.body ;  // should match input : see vid- 47.30
   const userData = new userModel({ username , email , fullname });
   
-  userModel.register(userData, req.body.password).
+  userModel.register(userData, req.body.password). //userdata^, pswd pass kiya.
   then(function(){
     passport.authenticate("local")(req,res, function(){  //agar user authenticate locally hogya hai then call back run kro jo ANDAR likha hai.
       res.redirect("/profile");
     })
   })
 });
- 
 
+router.post("/fileupload", isLoggedIn, upload.single("image"), async function(req,res,next){
+if(!req.file){
+  res.status(404).send("no files were Given");
+}
 
-
-
-router.get("/login",function(req,res,next){
-
-  res.render('login' , {error: req.flash('error')});
+ const user = await  userModel.findOne({username :req.session.passport.user  })
+ user.profileImage = req.file.filename;  //jo bhi dp file uplod hui h uska nam isme save hota hai.
+ await user.save();
+ res.redirect("/profile");
 });
-
-
-
-
-
-router.get("/feed", function(req,res,next){
-  res.render('feed');
-});
-
-
 
 //29 -> route for uploading image using multer , uplod.singel is = middleware jo img ko handle krega.
-router.post("/upload", isLoggedIn, upload.single('file'), async function(req,res,next){
-  if(!req.file){
-    res.status(404).send("no files were Given");
-  }           //Linking to Database now ->31
-      const user = await userModel.findOne({ username : req.session.passport.user}); // isse ek user milega jo login hai.
-      const post = await postModel.create({
-           img : req.file.filename ,                                                     // jb img uplod hui hai uska filename hoga.//
-           imgText : req.body.filecaption ,                                              // caption jo user ne dala hoga wo hoga.
-           user: user._id
-   });
-
-          user.posts.push(post._id);                                                    // user ke posts me post ki id push kr di.
-          await user.save();
-        res.redirect("/profile");
-});
+ 
 
 
 
@@ -86,57 +60,49 @@ router.post("/upload", isLoggedIn, upload.single('file'), async function(req,res
 
 //4 -> route for creating user
 
-// router.get('/createuser', async function (req,res ,next) {
-//   let createduser = await userModel.create({
-//     username: "Raj" ,
-//     password: "abcd",
-//     post:[],
-//     email : "raj@gmail.com",
-//     fullname : "Raj Singh" ,
-//   });
 
-//   res.send(createduser);
-// })
+//5 -> making post route to create post data , we have to link post with user & we have to link user with post
+// ie relationship bnaani hai dono models k beech me. & hamare pass get route bhi hai. that is get/profile
 
-//5 -> making post route
-
-// router.get("/createposts", async function(req,res,next){
-//   let createdpost =  await postModel.create({
-//     postText : "This is a sample post one , kese ho",
-//     user : "68a353b01f9abea8cd6628e2"
-//   }); 
-//   let user = await userModel.findOne({ _id: "68a353b01f9abea8cd6628e2"}) ;
-//   user.posts.push(createdpost._id );  
-//   await user.save();
-//   res.send("Done");
+router.post("/createpost", isLoggedIn, upload.single("postimage"),  async function(req,res,next){
+  const user = await userModel.findOne({username : req.session.passport.user });
+  const post =  await postModel.create({
+   user: user._id , //hamare paas user already h so just take id
+    title : req.body.title ,
+    description: req.body.description,
+     
+      img:req.file.filename
+  }); 
   
-// });
+  user.posts.push(post._id); //post id ko user k posts array me push krdo
+  await user.save();
+  res.redirect("/profile");
+  
+});
 
 // router.get("/allposts", async function(req,res,next){
 //   let user = await  userModel.findOne({ _id :"68a353b01f9abea8cd6628e2"}).populate("posts");
 //   res.send(user);
 // })
 
-//THIS COMMENTED ROUTES WHERE JUST FOR PRACTISE.
+//THIS COMMENTED ROUTES WHERE JUST FOR DEVLOPER PURPOSE.
 // NOW DEVLOPMENT CODE OF "PINTEREST" .
 
 
 
-router.post("/login",passport.authenticate("local",{
-  successRedirect: "/profile",
-  failureRedirect: "/" ,
-  failureFlash: true,
-}), function(req,res,next){
+router.post("/login" ,passport.authenticate('local',{
+  failureRedirect: '/',
+  successRedirect:"/profile",
+
+}),function(req,res,next){
 
 } );
 
-
-
-router.get("/logout", function(req,res){
-     req.logout(function(err){
-      if(err){ return next(err);}
-      res.redirect("/");
-     });
+router.get("/logout", function(req, res,next) {
+  req.logout(function(err){
+    if(err){ return next(err); }
+    res.redirect("/");
+  });
 });
 
 
@@ -150,12 +116,87 @@ router.get('/profile', isLoggedIn, async function(req,res,next){
                      // populate = populate se hum kisi dusre model ka data le skte hai.
         console.log(user);
         res.render("profile", { user, 
-    title: 'User Profile' });
+    title: 'User Profile'  , nav: true } );
 
 }); 
+
+//user ko khud ki posts sari dikhegi
+router.get('/show/posts', isLoggedIn, async function(req,res,next){
+    const  user = await userModel.findOne({
+      username : req.session.passport.user
+  })
+  .populate("posts"); //populate kr k posts ka sara data mil jata hai.
+                     // populate = populate se hum kisi dusre model ka data le skte hai.
+        console.log(user);
+        res.render("show", { user, 
+    title: 'User Profile'  , nav: true } ); //res.render me , show file ka naam h uske baad obj me data paas kiya hai.
+
+}); 
+
+//click pr singel post show hogi
+router.get('/show/posts/:id', isLoggedIn, async function(req,res,next){
+    const postId =  req.params.id ;
+    const post = await postModel.findById(postId).populate('user'); //populate se hum user ka data le skte hai jo is post se linked hai.
+      res.render("postData",{post,title:post.title, description:post.description , nav:true });
+
+});  
+
+//feed show hogi all users all posts
+router.get('/feed', isLoggedIn , async function(req,res,next){
+ const user = await userModel.findOne({username: req.session.passport.user});
+
+ const allposts = await  postModel.find().populate('user'); //each post have an id of user jo usne post kiya hai.
+   res.render("feed", { user, allposts , title:"Feed Page" , username: user.username , nav:true } );
+});
+
+
+router.get('/add', isLoggedIn , async function(req,res,next){
+  const user = await userModel.findOne({
+    username:req.session.passport.user
+  });
+  res.render("add" , {user ,title:req.body.title  , nav:true });
+});
  
 
+router.post('/post/:id/likes', isLoggedIn, async function(req,res,next){
+    const post = await postModel.findById(req.params.id);
+    const userId = req.user._id;
 
+   // 🛡️ SAFETY CHECK
+  if (!post.likes) {
+    post.likes = [];
+  }
+
+    if(post.likes.includes(userId)){
+      // User has already liked the post, so we remove the like
+      post.likes.pull(userId);
+    } 
+    else{
+      post.likes.push(userId);
+    }
+
+    await post.save();
+    res.redirect('back');
+});  
+
+router.post('/post/:id/save', isLoggedIn , async function(req,res,next){
+   const user = await userModel.findById(req.user._id);
+   const postId = req.params.id ;
+
+   if(user.savedPosts.includes(postId)){
+    user.savedPosts.pull(postId);
+   } else {
+    user.savedPosts.push(postId);
+   }
+    await user.save();
+    res.redirect('/saved');
+})
+
+router.get('/saved' , isLoggedIn , async function(req,res,next){
+const user = await userModel.findById(req.user._id).populate('savedPosts');
+res.render('saved', { user , title: 'saved Posts', nav: true});
+})
+ 
 
 
  function isLoggedIn(req,res,next){
